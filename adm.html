@@ -18,28 +18,28 @@
 
     <!-- LOGIN SCREEN -->
     <div id="login-screen" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-md space-y-6">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-md space-y-5">
             <div class="text-center space-y-2">
-                <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-indigo-200">
-                    <i class="fa-solid fa-user-shield text-3xl text-white"></i>
+                <div class="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center mx-auto shadow-md">
+                    <i class="fa-solid fa-user-shield text-2xl text-white"></i>
                 </div>
-                <h2 class="text-2xl font-extrabold text-slate-800">لوحة الإدارة والتحكم</h2>
+                <h2 class="text-xl font-extrabold text-slate-800">لوحة الإدارة والتحكم</h2>
                 <p class="text-xs text-slate-500">منظومة إدارة طلبات الإنترنت الضوئي FTTH</p>
             </div>
 
-            <form onsubmit="handleLogin(event)" class="space-y-4">
+            <form onsubmit="handleLogin(event)" class="space-y-3.5">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">اسم المستخدم</label>
                     <input type="text" id="login-username" required placeholder="اسم المستخدم" 
-                           class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                           class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none text-xs sm:text-sm">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">كلمة المرور</label>
                     <input type="password" id="login-password" required placeholder="••••••••" 
-                           class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                           class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none text-xs sm:text-sm">
                 </div>
-                <div id="login-error" class="hidden text-xs text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-100 font-semibold text-center"></div>
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-100 transition">
+                <div id="login-error" class="hidden text-xs text-red-600 bg-red-50 p-2 rounded-lg border border-red-100 font-semibold text-center"></div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow transition text-xs sm:text-sm">
                     تسجيل الدخول
                 </button>
             </form>
@@ -48,26 +48,23 @@
 
     <!-- MAIN ADMIN INTERFACE -->
     <div id="admin-main" class="hidden flex-col min-h-screen">
-        <!-- Header -->
-        <header class="bg-indigo-950 text-white shadow-md">
-            <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <div class="bg-indigo-600 p-2 rounded-lg">
-                        <i class="fa-solid fa-users-gear text-lg"></i>
+        <!-- Professional Header -->
+        <header class="bg-gradient-to-r from-indigo-950 to-slate-900 text-white shadow-md border-b border-indigo-900">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center gap-2">
+                <div class="flex items-center gap-2.5">
+                    <div class="bg-indigo-600 p-2 rounded-lg shadow-inner">
+                        <i class="fa-solid fa-users-gear text-sm"></i>
                     </div>
-                    <div>
-                        <h1 class="font-bold text-base md:text-lg">إدارة طلبات FTTH</h1>
-                        <p class="text-xs text-indigo-300">لوحة المتابعة والكشف الفني</p>
-                    </div>
+                    <h1 class="font-extrabold text-sm sm:text-base tracking-wide whitespace-nowrap">لوحة إدارة الطلبات</h1>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="loadAdminOrders()" class="text-xs bg-indigo-800 hover:bg-indigo-700 px-3 py-2 rounded-lg border border-indigo-700 transition flex items-center gap-1.5">
+                    <button onclick="loadAdminOrders()" class="text-xs bg-indigo-800 hover:bg-indigo-700 px-3 py-2 rounded-lg transition flex items-center gap-1 whitespace-nowrap">
                         <i class="fa-solid fa-rotate"></i> <span class="hidden sm:inline">تحديث</span>
                     </button>
-                    <button onclick="openChangePasswordModal()" class="text-xs bg-indigo-800 hover:bg-indigo-700 px-3 py-2 rounded-lg border border-indigo-700 transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-key"></i> <span class="hidden sm:inline">تغيير كلمة السر</span>
+                    <button onclick="openChangePasswordModal()" class="text-xs bg-indigo-800 hover:bg-indigo-700 px-3 py-2 rounded-lg transition flex items-center gap-1 whitespace-nowrap">
+                        <i class="fa-solid fa-key"></i> <span class="hidden sm:inline">تغيير السر</span>
                     </button>
-                    <button onclick="handleLogout()" class="text-xs bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg text-white font-bold transition flex items-center gap-1.5">
+                    <button onclick="handleLogout()" class="text-xs bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg text-white font-bold transition flex items-center gap-1 whitespace-nowrap">
                         <i class="fa-solid fa-right-from-bracket"></i> <span class="hidden sm:inline">خروج</span>
                     </button>
                 </div>
@@ -75,39 +72,37 @@
         </header>
 
         <!-- Main Content Container -->
-        <main class="max-w-7xl mx-auto px-4 py-6 w-full flex-grow space-y-6">
+        <main class="max-w-7xl mx-auto px-4 py-6 w-full flex-grow space-y-5">
             
             <!-- Statistics Bar -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <p class="text-xs font-bold text-slate-500">إجمالي الطلبات</p>
-                    <p id="stat-total" class="text-2xl font-extrabold text-indigo-900 mt-1">0</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-[11px] font-bold text-slate-500 whitespace-nowrap">إجمالي الطلبات</p>
+                    <p id="stat-total" class="text-xl font-extrabold text-indigo-900 mt-0.5">0</p>
                 </div>
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <p class="text-xs font-bold text-amber-600">جديد / الكشف الفني</p>
-                    <p id="stat-pending" class="text-2xl font-extrabold text-amber-600 mt-1">0</p>
+                <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-[11px] font-bold text-amber-600 whitespace-nowrap">جديد / كشف فني</p>
+                    <p id="stat-pending" class="text-xl font-extrabold text-amber-600 mt-0.5">0</p>
                 </div>
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <p class="text-xs font-bold text-purple-600">جاري التوصيل</p>
-                    <p id="stat-process" class="text-2xl font-extrabold text-purple-600 mt-1">0</p>
+                <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-[11px] font-bold text-purple-600 whitespace-nowrap">جاري التوصيل</p>
+                    <p id="stat-process" class="text-xl font-extrabold text-purple-600 mt-0.5">0</p>
                 </div>
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <p class="text-xs font-bold text-emerald-600">المكتملة</p>
-                    <p id="stat-completed" class="text-2xl font-extrabold text-emerald-600 mt-1">0</p>
+                <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-[11px] font-bold text-emerald-600 whitespace-nowrap">المكتملة</p>
+                    <p id="stat-completed" class="text-xl font-extrabold text-emerald-600 mt-0.5">0</p>
                 </div>
             </div>
 
             <!-- Controls & Filters -->
-            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between gap-4">
+            <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between gap-3">
                 <div class="flex-1 relative">
-                    <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </span>
-                    <input type="text" id="admin-search" oninput="renderOrdersTable()" placeholder="بحث بالاسم أو رقم الهاتف..." 
-                           class="w-full pr-10 pl-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 text-xs"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" id="admin-search" oninput="renderOrdersTable()" placeholder="بحث بالاسم أو الهاتف..." 
+                           class="w-full pr-9 pl-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
                 <div class="flex gap-2">
-                    <select id="admin-filter-status" onchange="renderOrdersTable()" class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 outline-none">
+                    <select id="admin-filter-status" onchange="renderOrdersTable()" class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs sm:text-sm font-semibold text-slate-700 outline-none">
                         <option value="جميع الحالات">جميع الحالات</option>
                         <option value="جديد">جديد</option>
                         <option value="كشف فني">كشف فني</option>
@@ -120,17 +115,17 @@
             <!-- Orders Table Container -->
             <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-right border-collapse text-sm">
+                    <table class="w-full text-right border-collapse text-xs sm:text-sm">
                         <thead>
-                            <tr class="bg-slate-100 border-b border-slate-200 text-slate-600 text-xs font-bold">
-                                <th class="p-4">رقم الطلب</th>
-                                <th class="p-4">المشترك</th>
-                                <th class="p-4">العنوان</th>
-                                <th class="p-4">الموقع الجغرافي</th>
-                                <th class="p-4">صورة العمود</th>
-                                <th class="p-4">الحالة</th>
-                                <th class="p-4">ملاحظات الفني</th>
-                                <th class="p-4">إجراءات</th>
+                            <tr class="bg-slate-100 border-b border-slate-200 text-slate-600 text-[11px] font-bold whitespace-nowrap">
+                                <th class="p-3.5">رقم الطلب</th>
+                                <th class="p-3.5">المشترك</th>
+                                <th class="p-3.5">العنوان</th>
+                                <th class="p-3.5">الموقع</th>
+                                <th class="p-3.5">الصورة</th>
+                                <th class="p-3.5">الحالة</th>
+                                <th class="p-3.5">ملاحظات الفني</th>
+                                <th class="p-3.5">إجراءات</th>
                             </tr>
                         </thead>
                         <tbody id="admin-orders-table" class="divide-y divide-slate-100">
@@ -145,23 +140,23 @@
 
     <!-- CHANGE PASSWORD MODAL -->
     <div id="password-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm space-y-4">
-            <h3 class="font-bold text-lg text-slate-800 border-b pb-2">تغيير كلمة السر</h3>
+        <div class="bg-white rounded-2xl shadow-xl p-5 w-full max-w-sm space-y-3.5">
+            <h3 class="font-bold text-base text-slate-800 border-b pb-2">تغيير كلمة السر</h3>
             <form onsubmit="handleChangePassword(event)" class="space-y-3">
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">كلمة السر الحالية</label>
-                    <input type="password" id="curr-pass" required class="w-full px-3 py-2 bg-slate-50 border rounded-lg text-sm">
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">كلمة السر الحالية</label>
+                    <input type="password" id="curr-pass" required class="w-full px-3 py-2 bg-slate-50 border rounded-lg text-xs">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">كلمة السر الجديدة</label>
-                    <input type="password" id="new-pass" required class="w-full px-3 py-2 bg-slate-50 border rounded-lg text-sm">
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">كلمة السر الجديدة</label>
+                    <input type="password" id="new-pass" required class="w-full px-3 py-2 bg-slate-50 border rounded-lg text-xs">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">تأكيد كلمة السر الجديدة</label>
-                    <input type="password" id="confirm-pass" required class="w-full px-3 py-2 bg-slate-50 border rounded-lg text-sm">
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">تأكيد كلمة السر الجديدة</label>
+                    <input type="password" id="confirm-pass" required class="w-full px-3 py-2 bg-slate-50 border rounded-lg text-xs">
                 </div>
                 <div id="pass-msg" class="hidden text-xs text-red-600 font-bold"></div>
-                <div class="flex gap-2 pt-2">
+                <div class="flex gap-2 pt-1">
                     <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg text-xs">حفظ</button>
                     <button type="button" onclick="closeChangePasswordModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-2 rounded-lg text-xs">إلغاء</button>
                 </div>
@@ -275,7 +270,7 @@
 
         async function loadAdminOrders() {
             const tbody = document.getElementById('admin-orders-table');
-            tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400">جاري تحميل الطلبات من السحابة...</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400">جاري تحميل الطلبات...</td></tr>`;
 
             try {
                 const querySnapshot = await window.getDocs(window.collection(window.db, "ftth_orders"));
@@ -289,7 +284,7 @@
                 renderOrdersTable();
             } catch (err) {
                 console.error(err);
-                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-red-500">فشل تحميل الطلبات. تحقق من إعدادات الاتصال وقاعدة البيانات.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-red-500">فشل تحميل الطلبات. تحقق من الاتصال.</td></tr>`;
             }
         }
 
@@ -319,38 +314,38 @@
             filtered.forEach(o => {
                 html += `
                     <tr class="hover:bg-slate-50 transition">
-                        <td class="p-4 font-mono font-bold text-xs text-indigo-900">${o.orderId}</td>
-                        <td class="p-4">
+                        <td class="p-3.5 font-mono font-bold text-xs text-indigo-900 whitespace-nowrap">${o.orderId}</td>
+                        <td class="p-3.5 whitespace-nowrap">
                             <div class="font-bold text-slate-800">${o.fullName}</div>
-                            <div class="text-xs text-slate-500 font-mono">${o.phone}</div>
+                            <div class="text-[11px] text-slate-500 font-mono">${o.phone}</div>
                         </td>
-                        <td class="p-4 text-xs text-slate-600 max-w-xs">${o.address}</td>
-                        <td class="p-4">
-                            <a href="https://maps.google.com/?q=${o.lat},${o.lng}" target="_blank" class="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-100">
+                        <td class="p-3.5 text-xs text-slate-600 max-w-xs truncate">${o.address}</td>
+                        <td class="p-3.5 whitespace-nowrap">
+                            <a href="https://maps.google.com/?q=${o.lat},${o.lng}" target="_blank" class="inline-flex items-center gap-1 text-[11px] text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 px-2 py-1 rounded-md border border-indigo-100">
                                 <i class="fa-solid fa-map-location-dot"></i> الخريطة
                             </a>
                         </td>
-                        <td class="p-4">
-                            ${o.poleImage ? `<a href="${o.poleImage}" target="_blank"><img src="${o.poleImage}" class="w-10 h-10 object-cover rounded-lg border shadow-sm"></a>` : '<span class="text-xs text-slate-400">لا يوجد</span>'}
+                        <td class="p-3.5 whitespace-nowrap">
+                            ${o.poleImage ? `<a href="${o.poleImage}" target="_blank"><img src="${o.poleImage}" class="w-9 h-9 object-cover rounded-md border shadow-sm"></a>` : '<span class="text-[11px] text-slate-400">لا يوجد</span>'}
                         </td>
-                        <td class="p-4">
-                            <select onchange="updateOrderStatus('${o.firestoreId}', this.value)" class="text-xs font-bold rounded-lg px-2 py-1.5 border outline-none">
+                        <td class="p-3.5 whitespace-nowrap">
+                            <select onchange="updateOrderStatus('${o.firestoreId}', this.value)" class="text-xs font-bold rounded-lg px-2 py-1 border outline-none bg-white">
                                 <option value="جديد" ${o.status === 'جديد' ? 'selected' : ''}>جديد</option>
                                 <option value="كشف فني" ${o.status === 'كشف فني' ? 'selected' : ''}>كشف فني</option>
                                 <option value="جاري التوصيل" ${o.status === 'جاري التوصيل' ? 'selected' : ''}>جاري التوصيل</option>
                                 <option value="مكتمل" ${o.status === 'مكتمل' ? 'selected' : ''}>مكتمل</option>
                             </select>
                         </td>
-                        <td class="p-4">
-                            <input type="text" value="${o.notes || ''}" placeholder="أضف ملاحظة..." onchange="updateOrderNotes('${o.firestoreId}', this.value)"
+                        <td class="p-3.5">
+                            <input type="text" value="${o.notes || ''}" placeholder="ملاحظة..." onchange="updateOrderNotes('${o.firestoreId}', this.value)"
                                    class="text-xs bg-slate-50 border rounded-lg px-2 py-1 w-full focus:bg-white focus:ring-1 focus:ring-indigo-500">
                         </td>
-                        <td class="p-4">
+                        <td class="p-3.5 whitespace-nowrap">
                             <div class="flex items-center gap-2">
-                                <a href="https://wa.me/${o.phone.replace(/^0/, '964')}" target="_blank" class="text-emerald-600 hover:text-emerald-800 text-base" title="واتساب">
-                                    <i class="fa-brands fa-whatsapp"></i>
+                                <a href="https://wa.me/${o.phone.replace(/^0/, '964')}" target="_blank" class="text-emerald-600 hover:text-emerald-800 text-sm" title="واتساب">
+                                    <i class="fa-brands fa-whatsapp text-base"></i>
                                 </a>
-                                <button onclick="deleteOrder('${o.firestoreId}')" class="text-red-500 hover:text-red-700 text-base" title="حذف">
+                                <button onclick="deleteOrder('${o.firestoreId}')" class="text-red-500 hover:text-red-700 text-sm" title="حذف">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </div>
@@ -371,7 +366,7 @@
                 renderOrdersTable();
             } catch (err) {
                 console.error(err);
-                alert('فشل تحديث الحالة في السحابة.');
+                alert('فشل تحديث الحالة.');
             }
         }
 
@@ -388,7 +383,7 @@
         }
 
         async function deleteOrder(firestoreId) {
-            if (confirm('هل أنت متأكد من حذف هذا الطلب نهائياً من السحابة؟')) {
+            if (confirm('هل أنت متأكد من حذف هذا الطلب نهائياً؟')) {
                 try {
                     await window.deleteDoc(window.doc(window.db, "ftth_orders", firestoreId));
                     loadAdminOrders();
