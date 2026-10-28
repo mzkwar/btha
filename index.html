@@ -17,25 +17,28 @@
         body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; }
         #map { height: 320px; width: 100%; border-radius: 0.75rem; z-index: 10; }
         .leaflet-control-attribution { display: none !important; }
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            60% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-bounce-in { animation: bounceIn 0.3s ease-out forwards; }
     </style>
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between relative overflow-x-hidden">
 
-    <!-- Floating Toast Notification -->
-    <div id="toast-notification" class="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] hidden max-w-md w-[90%] p-4 rounded-2xl shadow-xl border text-xs sm:text-sm font-bold flex items-center gap-3 transition-all duration-300">
-        <i id="toast-icon" class="text-lg"></i>
-        <span id="toast-text" class="flex-1"></span>
-    </div>
+    <!-- Floating Top Toast Notification Container -->
+    <div id="toast-container" class="fixed top-4 left-0 right-0 z-[9999] pointer-events-none flex flex-col items-center px-4 space-y-2"></div>
 
     <!-- Custom Internal Confirm Modal -->
     <div id="custom-confirm-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm space-y-4 text-center animate-in fade-in zoom-in duration-200">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm space-y-4 text-center animate-bounce-in">
             <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
             <div class="space-y-1">
                 <h3 class="font-bold text-base text-slate-800">تأكيد إلغاء الطلب</h3>
-                <p class="text-xs text-slate-500">هل أنت متأكد من إلغاء هذا الطلب؟ ستحتاج إلى إعادة التقديم من جديد إذا رغبت بذلك.</p>
+                <p class="text-xs text-slate-500 leading-relaxed">هل أنت متأكد من إلغاء هذا الطلب؟<br>ستحتاج إلى إعادة التقديم من جديد إذا رغبت بذلك.</p>
             </div>
             <div class="flex gap-2 pt-2">
                 <button type="button" id="confirm-yes-btn" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-xs transition">نعم، إلغاء الطلب</button>
@@ -245,33 +248,31 @@
         let selectedLat = null;
         let selectedLng = null;
         let poleImageBase64 = null;
-        let toastTimeout = null;
 
         document.addEventListener('DOMContentLoaded', () => {
             initMap();
         });
 
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast-notification');
-            const toastText = document.getElementById('toast-text');
-            const toastIcon = document.getElementById('toast-icon');
+        function showToast(htmlContent, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgClass = type === 'success' 
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-950' 
+                : 'bg-red-50 border-red-200 text-red-950';
 
-            toastText.innerText = message;
+            toast.className = `pointer-events-auto max-w-md w-full p-4 rounded-2xl shadow-xl border ${bgClass} text-xs sm:text-sm font-bold flex flex-col gap-1.5 animate-bounce-in relative`;
+            
+            toast.innerHTML = htmlContent;
 
-            if (type === 'success') {
-                toast.className = "fixed top-5 left-1/2 -translate-x-1/2 z-[9999] max-w-md w-[90%] p-4 rounded-2xl shadow-xl border bg-emerald-50 border-emerald-200 text-emerald-900 text-xs sm:text-sm font-bold flex items-center gap-3 transition-all duration-300";
-                toastIcon.className = "fa-solid fa-circle-check text-emerald-600 text-lg";
-            } else {
-                toast.className = "fixed top-5 left-1/2 -translate-x-1/2 z-[9999] max-w-md w-[90%] p-4 rounded-2xl shadow-xl border bg-red-50 border-red-200 text-red-900 text-xs sm:text-sm font-bold flex items-center gap-3 transition-all duration-300";
-                toastIcon.className = "fa-solid fa-circle-exclamation text-red-600 text-lg";
-            }
+            container.appendChild(toast);
 
-            toast.style.display = 'flex';
-
-            if (toastTimeout) clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => {
-                toast.style.display = 'none';
-            }, 4000);
+            setTimeout(() => {
+                toast.style.transition = 'all 0.3s ease-out';
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-15px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
         }
 
         function openCustomConfirm(onConfirmCallback) {
@@ -279,7 +280,6 @@
             const yesBtn = document.getElementById('confirm-yes-btn');
             modal.style.display = 'flex';
 
-            // إزالة الأحداث السابقة لمنع التداخل
             const newBtn = yesBtn.cloneNode(true);
             yesBtn.parentNode.replaceChild(newBtn, yesBtn);
 
@@ -401,7 +401,12 @@
             event.preventDefault();
             
             if (!selectedLat || !selectedLng) {
-                showToast('يرجى تحديد موقع المنزل على الخريطة أولاً.', 'error');
+                showToast(`
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-circle-exclamation text-red-600 text-base"></i>
+                        <span>يرجى تحديد موقع المنزل على الخريطة أولاً.</span>
+                    </div>
+                `, 'error');
                 return;
             }
 
@@ -420,7 +425,12 @@
                 });
 
                 if (exists) {
-                    showToast('تم تقديم طلب مسبقاً بهذا الرقم!', 'error');
+                    showToast(`
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-circle-exclamation text-red-600 text-base"></i>
+                            <span>تم تقديم طلب مسبقاً بهذا الرقم!</span>
+                        </div>
+                    `, 'error');
                     btn.disabled = false;
                     btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> إرسال طلب الاشتراك الآن`;
                     return;
@@ -442,12 +452,29 @@
 
                 await window.addDoc(window.collection(window.db, "ftth_orders"), order);
 
-                showToast(`تم إرسال طلبك بنجاح! رقم الطلب الخاص بك: ${order.orderId}`, 'success');
+                // إشعار نجاح مع أيقونة صح متحركة وترتيب بأسطر
+                showToast(`
+                    <div class="flex items-center gap-2 border-b border-emerald-200 pb-1.5">
+                        <div class="w-5 h-5 bg-emerald-600 text-white rounded-full flex items-center justify-center text-xs animate-bounce">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <span class="font-extrabold text-emerald-900">تم إرسال طلبك بنجاح!</span>
+                    </div>
+                    <div class="text-slate-700 font-mono text-xs pt-0.5">
+                        رقم الطلب الخاص بك: <span class="font-bold text-indigo-900">${order.orderId}</span>
+                    </div>
+                `, 'success');
+
                 document.getElementById('ftth-form').reset();
                 removeImage(event);
             } catch (error) {
                 console.error(error);
-                showToast('حدث خطأ أثناء الإرسال، يرجى المحاولة مرة أخرى.', 'error');
+                showToast(`
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-circle-exclamation text-red-600 text-base"></i>
+                        <span>حدث خطأ أثناء الإرسال، يرجى المحاولة مرة أخرى.</span>
+                    </div>
+                `, 'error');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> إرسال طلب الاشتراك الآن`;
@@ -520,11 +547,24 @@
             openCustomConfirm(async () => {
                 try {
                     await window.deleteDoc(window.doc(window.db, "ftth_orders", firestoreId));
-                    showToast('تم إلغاء الطلب بنجاح. يمكنك الآن التقديم مجدداً.', 'success');
+                    showToast(`
+                        <div class="flex items-center gap-2 border-b border-emerald-200 pb-1.5">
+                            <div class="w-5 h-5 bg-emerald-600 text-white rounded-full flex items-center justify-center text-xs">
+                                <i class="fa-solid fa-check"></i>
+                            </div>
+                            <span class="font-extrabold text-emerald-900">تم إلغاء الطلب بنجاح.</span>
+                        </div>
+                        <div class="text-slate-700 text-xs pt-0.5">يمكنك الآن التقديم مجدداً بكل سهولة.</div>
+                    `, 'success');
                     document.getElementById('track-result').innerHTML = `<p class="text-xs text-slate-500 text-center py-3">تم إلغاء الطلب بنجاح.</p>`;
                 } catch (err) {
                     console.error(err);
-                    showToast('فشل إلغاء الطلب، يرجى المحاولة مرة أخرى.', 'error');
+                    showToast(`
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-circle-exclamation text-red-600 text-base"></i>
+                            <span>فشل إلغاء الطلب، يرجى المحاولة مرة أخرى.</span>
+                        </div>
+                    `, 'error');
                 }
             });
         }
