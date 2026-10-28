@@ -169,18 +169,19 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
+    <!-- Firebase SDKs & Config -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyALzT1ABZJjTxXraUJfNAO3YAdo_UD2rfQ",
+            authDomain: "ftth-4b143.firebaseapp.com",
+            projectId: "ftth-4b143",
+            storageBucket: "ftth-4b143.firebasestorage.app",
+            messagingSenderId: "907865289895",
+            appId: "1:907865289895:web:e0c6f40b90dac9d16e1782",
+            measurementId: "G-JKHYSSYFWL"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -283,13 +284,12 @@
                     allOrdersCache.push({ firestoreId: docSnap.id, ...docSnap.data() });
                 });
 
-                // Sort newest first
                 allOrdersCache.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
                 renderOrdersTable();
             } catch (err) {
                 console.error(err);
-                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-red-500">فشل تحميل الطلبات. تحقق من إعدادات الاتصال.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-red-500">فشل تحميل الطلبات. تحقق من إعدادات الاتصال وقاعدة البيانات.</td></tr>`;
             }
         }
 
