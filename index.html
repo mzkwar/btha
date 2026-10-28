@@ -16,16 +16,32 @@
     <style>
         body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; }
         #map { height: 320px; width: 100%; border-radius: 0.75rem; z-index: 10; }
-        /* إخفاء حقوق الطبع والنشر الافتراضية للخريطة لتصبح نظيفة تماماً */
         .leaflet-control-attribution { display: none !important; }
     </style>
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between relative overflow-x-hidden">
 
     <!-- Floating Toast Notification -->
-    <div id="toast-notification" class="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] hidden max-w-md w-[90%] p-4 rounded-2xl shadow-xl border text-xs sm:text-sm font-bold flex items-center gap-3 transition-all duration-300 transform -translate-y-10 opacity-0">
+    <div id="toast-notification" class="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] hidden max-w-md w-[90%] p-4 rounded-2xl shadow-xl border text-xs sm:text-sm font-bold flex items-center gap-3 transition-all duration-300">
         <i id="toast-icon" class="text-lg"></i>
         <span id="toast-text" class="flex-1"></span>
+    </div>
+
+    <!-- Custom Internal Confirm Modal -->
+    <div id="custom-confirm-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm space-y-4 text-center animate-in fade-in zoom-in duration-200">
+            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div class="space-y-1">
+                <h3 class="font-bold text-base text-slate-800">تأكيد إلغاء الطلب</h3>
+                <p class="text-xs text-slate-500">هل أنت متأكد من إلغاء هذا الطلب؟ ستحتاج إلى إعادة التقديم من جديد إذا رغبت بذلك.</p>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button type="button" id="confirm-yes-btn" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl text-xs transition">نعم، إلغاء الطلب</button>
+                <button type="button" onclick="closeCustomConfirm()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition">تراجع</button>
+            </div>
+        </div>
     </div>
 
     <!-- Professional Header -->
@@ -243,10 +259,10 @@
             toastText.innerText = message;
 
             if (type === 'success') {
-                toast.className = "fixed top-5 left-1/2 -translate-x-1/2 z-[9999] max-w-md w-[90%] p-4 rounded-2xl shadow-xl border bg-emerald-50 border-emerald-200 text-emerald-900 text-xs sm:text-sm font-bold flex items-center gap-3 transition-all duration-300 transform opacity-100 translate-y-0";
+                toast.className = "fixed top-5 left-1/2 -translate-x-1/2 z-[9999] max-w-md w-[90%] p-4 rounded-2xl shadow-xl border bg-emerald-50 border-emerald-200 text-emerald-900 text-xs sm:text-sm font-bold flex items-center gap-3 transition-all duration-300";
                 toastIcon.className = "fa-solid fa-circle-check text-emerald-600 text-lg";
             } else {
-                toast.className = "fixed top-5 left-1/2 -translate-x-1/2 z-[9999] max-w-md w-[90%] p-4 rounded-2xl shadow-xl border bg-red-50 border-red-200 text-red-900 text-xs sm:text-sm font-bold flex items-center gap-3 transition-all duration-300 transform opacity-100 translate-y-0";
+                toast.className = "fixed top-5 left-1/2 -translate-x-1/2 z-[9999] max-w-md w-[90%] p-4 rounded-2xl shadow-xl border bg-red-50 border-red-200 text-red-900 text-xs sm:text-sm font-bold flex items-center gap-3 transition-all duration-300";
                 toastIcon.className = "fa-solid fa-circle-exclamation text-red-600 text-lg";
             }
 
@@ -254,12 +270,27 @@
 
             if (toastTimeout) clearTimeout(toastTimeout);
             toastTimeout = setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translate(-50%, -20px)';
-                setTimeout(() => {
-                    toast.style.display = 'none';
-                }, 300);
+                toast.style.display = 'none';
             }, 4000);
+        }
+
+        function openCustomConfirm(onConfirmCallback) {
+            const modal = document.getElementById('custom-confirm-modal');
+            const yesBtn = document.getElementById('confirm-yes-btn');
+            modal.style.display = 'flex';
+
+            // إزالة الأحداث السابقة لمنع التداخل
+            const newBtn = yesBtn.cloneNode(true);
+            yesBtn.parentNode.replaceChild(newBtn, yesBtn);
+
+            newBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+                if (onConfirmCallback) onConfirmCallback();
+            });
+        }
+
+        function closeCustomConfirm() {
+            document.getElementById('custom-confirm-modal').style.display = 'none';
         }
 
         function switchTab(tab) {
@@ -291,7 +322,6 @@
 
             map = L.map('map').setView([defaultLat, defaultLng], 15);
 
-            // طبقة الخريطة العادية (OpenStreetMap النظيفة)
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19
             }).addTo(map);
@@ -381,7 +411,6 @@
             btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> جاري التحقق والإرسال...`;
 
             try {
-                // التحقق مما إذا كان الرقم مسجلاً مسبقاً
                 const querySnapshot = await window.getDocs(window.collection(window.db, "ftth_orders"));
                 let exists = false;
                 querySnapshot.forEach((doc) => {
@@ -472,7 +501,7 @@
                             ${o.notes ? `<p class="text-indigo-900 bg-indigo-50 p-2 rounded-lg border border-indigo-100"><i class="fa-solid fa-clipboard-check ml-1"></i> ملاحظات: ${o.notes}</p>` : ''}
                             
                             <div class="pt-2 flex justify-end">
-                                <button onclick="cancelMyOrder('${o.firestoreId}')" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-1.5 rounded-lg border border-red-200 transition flex items-center gap-1 text-[11px]">
+                                <button type="button" onclick="promptCancelOrder('${o.firestoreId}')" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-1.5 rounded-lg border border-red-200 transition flex items-center gap-1 text-[11px]">
                                     <i class="fa-solid fa-trash-can"></i> إلغاء الطلب لإعادة التقديم
                                 </button>
                             </div>
@@ -487,17 +516,17 @@
             }
         }
 
-        async function cancelMyOrder(firestoreId) {
-            if (confirm('هل أنت متأكد من إلغاء هذا الطلب؟ ستحتاج إلى إعادة التقديم من جديد إذا رغبت بذلك.')) {
+        function promptCancelOrder(firestoreId) {
+            openCustomConfirm(async () => {
                 try {
                     await window.deleteDoc(window.doc(window.db, "ftth_orders", firestoreId));
                     showToast('تم إلغاء الطلب بنجاح. يمكنك الآن التقديم مجدداً.', 'success');
                     document.getElementById('track-result').innerHTML = `<p class="text-xs text-slate-500 text-center py-3">تم إلغاء الطلب بنجاح.</p>`;
                 } catch (err) {
                     console.error(err);
-                    showToast('فشل إلغاء الطلب، يحاول مرة أخرى.', 'error');
+                    showToast('فشل إلغاء الطلب، يرجى المحاولة مرة أخرى.', 'error');
                 }
-            }
+            });
         }
     </script>
 </body>
