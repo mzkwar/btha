@@ -16,9 +16,17 @@
     <style>
         body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; }
         #map { height: 320px; width: 100%; border-radius: 0.75rem; z-index: 10; }
+        /* إخفاء حقوق الطبع والنشر الافتراضية للخريطة لتصبح نظيفة تماماً */
+        .leaflet-control-attribution { display: none !important; }
     </style>
 </head>
-<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between relative overflow-x-hidden">
+
+    <!-- Floating Toast Notification -->
+    <div id="toast-notification" class="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] hidden max-w-md w-[90%] p-4 rounded-2xl shadow-xl border text-xs sm:text-sm font-bold flex items-center gap-3 transition-all duration-300 transform -translate-y-10 opacity-0">
+        <i id="toast-icon" class="text-lg"></i>
+        <span id="toast-text" class="flex-1"></span>
+    </div>
 
     <!-- Professional Header -->
     <header class="bg-gradient-to-r from-indigo-900 to-slate-900 text-white shadow-md sticky top-0 z-50 border-b border-indigo-800">
@@ -36,17 +44,6 @@
     <!-- Main Container -->
     <main class="max-w-4xl mx-auto px-4 py-6 w-full flex-grow">
         
-        <!-- Internal Toast Notification Box -->
-        <div id="internal-alert" class="hidden mb-6 p-4 rounded-xl border text-xs sm:text-sm font-bold flex items-center justify-between shadow-sm transition-all">
-            <div class="flex items-center gap-2.5">
-                <i id="internal-alert-icon" class="text-lg"></i>
-                <span id="internal-alert-text"></span>
-            </div>
-            <button onclick="hideInternalAlert()" class="text-slate-400 hover:text-slate-700">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </div>
-
         <!-- Tab Navigation -->
         <div class="flex bg-slate-200 p-1 rounded-xl mb-6 max-w-sm mx-auto shadow-inner">
             <button type="button" onclick="switchTab('new-request')" id="tab-new" class="flex-1 py-2 rounded-lg font-bold text-xs sm:text-sm transition bg-white text-indigo-900 shadow">
@@ -119,20 +116,20 @@
                 <!-- Geolocation Section -->
                 <div class="space-y-2.5 pt-1">
                     <div class="flex justify-between items-center flex-wrap gap-2">
-                        <label class="block text-xs font-bold text-slate-700">موقع المنزل عبر قمر صناعي <span class="text-red-500">*</span></label>
+                        <label class="block text-xs font-bold text-slate-700">موقع المنزل على الخريطة <span class="text-red-500">*</span></label>
                         <button type="button" onclick="getLocation()" class="text-[11px] bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-2.5 py-1.5 rounded-lg border border-indigo-200 flex items-center gap-1 transition">
                             <i class="fa-solid fa-crosshairs"></i> تحديد موقعي بدقة
                         </button>
                     </div>
 
-                    <p class="text-[11px] text-slate-500">🛰️ الخريطة معروضة بصور الأقمار الصناعية. انقر على منزلك مباشرة أو اسحب العلامة لتحديد مكانك بدقة.</p>
+                    <p class="text-[11px] text-slate-500">💡 انقر على الخريطة أو اسحب العلامة لتحديد موقع منزلك بدقة تامة.</p>
 
                     <!-- Alert Box for Location Permission -->
                     <div id="location-alert" class="hidden p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs leading-relaxed space-y-1">
                         <div class="flex items-center gap-1.5 font-bold text-amber-800">
                             <i class="fa-solid fa-triangle-exclamation"></i> تعذر تحديد الموقع تلقائياً
                         </div>
-                        <p>يرجى السماح بصلاحية الموقع أو الضغط يدوياً على منزلك في قمر صناعي.</p>
+                        <p>يرجى السماح بصلاحية الموقع أو الضغط يدوياً على الخريطة.</p>
                     </div>
 
                     <!-- Map Container -->
@@ -203,7 +200,7 @@
     <!-- Firebase SDKs & Config -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyALzT1ABZJjTxXraUJfNAO3YAdo_UD2rfQ",
@@ -222,6 +219,8 @@
         window.collection = collection;
         window.addDoc = addDoc;
         window.getDocs = getDocs;
+        window.doc = doc;
+        window.deleteDoc = deleteDoc;
     </script>
 
     <!-- Application Script -->
@@ -230,35 +229,37 @@
         let selectedLat = null;
         let selectedLng = null;
         let poleImageBase64 = null;
+        let toastTimeout = null;
 
         document.addEventListener('DOMContentLoaded', () => {
             initMap();
         });
 
-        function showInternalAlert(message, type = 'success') {
-            const alertBox = document.getElementById('internal-alert');
-            const alertText = document.getElementById('internal-alert-text');
-            const alertIcon = document.getElementById('internal-alert-icon');
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast-notification');
+            const toastText = document.getElementById('toast-text');
+            const toastIcon = document.getElementById('toast-icon');
 
-            alertText.innerText = message;
+            toastText.innerText = message;
 
             if (type === 'success') {
-                alertBox.className = "mb-6 p-4 rounded-xl border bg-emerald-50 border-emerald-200 text-emerald-900 text-xs sm:text-sm font-bold flex items-center justify-between shadow-sm transition-all";
-                alertIcon.className = "fa-solid fa-circle-check text-emerald-600 text-lg";
-            } else if (type === 'error') {
-                alertBox.className = "mb-6 p-4 rounded-xl border bg-red-50 border-red-200 text-red-900 text-xs sm:text-sm font-bold flex items-center justify-between shadow-sm transition-all";
-                alertIcon.className = "fa-solid fa-circle-exclamation text-red-600 text-lg";
+                toast.className = "fixed top-5 left-1/2 -translate-x-1/2 z-[9999] max-w-md w-[90%] p-4 rounded-2xl shadow-xl border bg-emerald-50 border-emerald-200 text-emerald-900 text-xs sm:text-sm font-bold flex items-center gap-3 transition-all duration-300 transform opacity-100 translate-y-0";
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-600 text-lg";
             } else {
-                alertBox.className = "mb-6 p-4 rounded-xl border bg-indigo-50 border-indigo-200 text-indigo-900 text-xs sm:text-sm font-bold flex items-center justify-between shadow-sm transition-all";
-                alertIcon.className = "fa-solid fa-circle-info text-indigo-600 text-lg";
+                toast.className = "fixed top-5 left-1/2 -translate-x-1/2 z-[9999] max-w-md w-[90%] p-4 rounded-2xl shadow-xl border bg-red-50 border-red-200 text-red-900 text-xs sm:text-sm font-bold flex items-center gap-3 transition-all duration-300 transform opacity-100 translate-y-0";
+                toastIcon.className = "fa-solid fa-circle-exclamation text-red-600 text-lg";
             }
 
-            alertBox.style.display = 'flex';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+            toast.style.display = 'flex';
 
-        function hideInternalAlert() {
-            document.getElementById('internal-alert').style.display = 'none';
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translate(-50%, -20px)';
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                }, 300);
+            }, 4000);
         }
 
         function switchTab(tab) {
@@ -266,8 +267,6 @@
             const trackSec = document.getElementById('section-track-request');
             const tabNew = document.getElementById('tab-new');
             const tabTrack = document.getElementById('tab-track');
-
-            hideInternalAlert();
 
             if (tab === 'new-request') {
                 newSec.style.display = 'block';
@@ -292,8 +291,8 @@
 
             map = L.map('map').setView([defaultLat, defaultLng], 15);
 
-            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+            // طبقة الخريطة العادية (OpenStreetMap النظيفة)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19
             }).addTo(map);
 
@@ -322,7 +321,7 @@
                         const lng = position.coords.longitude;
                         
                         marker.setLatLng([lat, lng]);
-                        map.setView([lat, lng], 19);
+                        map.setView([lat, lng], 17);
                         updateMarkerCoords(lat, lng);
                         
                         alertBox.style.display = 'none';
@@ -372,19 +371,36 @@
             event.preventDefault();
             
             if (!selectedLat || !selectedLng) {
-                showInternalAlert('يرجى تحديد موقع المنزل على الخريطة أولاً.', 'error');
+                showToast('يرجى تحديد موقع المنزل على الخريطة أولاً.', 'error');
                 return;
             }
 
+            const phoneInput = document.getElementById('phone').value.trim();
             const btn = document.getElementById('submit-btn');
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> جاري الإرسال...`;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> جاري التحقق والإرسال...`;
 
             try {
+                // التحقق مما إذا كان الرقم مسجلاً مسبقاً
+                const querySnapshot = await window.getDocs(window.collection(window.db, "ftth_orders"));
+                let exists = false;
+                querySnapshot.forEach((doc) => {
+                    if (doc.data().phone === phoneInput) {
+                        exists = true;
+                    }
+                });
+
+                if (exists) {
+                    showToast('تم تقديم طلب مسبقاً بهذا الرقم!', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> إرسال طلب الاشتراك الآن`;
+                    return;
+                }
+
                 const order = {
                     orderId: 'ORD-' + Math.floor(100000 + Math.random() * 900000),
                     fullName: document.getElementById('fullName').value.trim(),
-                    phone: document.getElementById('phone').value.trim(),
+                    phone: phoneInput,
                     address: document.getElementById('address').value.trim(),
                     lat: selectedLat,
                     lng: selectedLng,
@@ -397,12 +413,12 @@
 
                 await window.addDoc(window.collection(window.db, "ftth_orders"), order);
 
-                showInternalAlert(`تم إرسال طلبك بنجاح! رقم الطلب الخاص بك: ${order.orderId}`, 'success');
+                showToast(`تم إرسال طلبك بنجاح! رقم الطلب الخاص بك: ${order.orderId}`, 'success');
                 document.getElementById('ftth-form').reset();
                 removeImage(event);
             } catch (error) {
                 console.error(error);
-                showInternalAlert('حدث خطأ أثناء الإرسال، يرجى المحاولة مرة أخرى.', 'error');
+                showToast('حدث خطأ أثناء الإرسال، يرجى المحاولة مرة أخرى.', 'error');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> إرسال طلب الاشتراك الآن`;
@@ -425,10 +441,10 @@
                 const querySnapshot = await window.getDocs(window.collection(window.db, "ftth_orders"));
                 let foundOrders = [];
                 
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
                     if (data.phone.includes(queryVal) || data.orderId.includes(queryVal)) {
-                        foundOrders.push(data);
+                        foundOrders.push({ firestoreId: docSnap.id, ...data });
                     }
                 });
 
@@ -446,14 +462,20 @@
                     else if(o.status === 'مكتمل') statusBadge = '<span class="bg-emerald-100 text-emerald-800 text-[11px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap">تم التفعيل بنجاح</span>';
 
                     html += `
-                        <div class="p-3.5 bg-slate-50 border rounded-xl space-y-1.5 text-xs">
-                            <div class="flex justify-between items-center border-b pb-1.5">
+                        <div class="p-4 bg-slate-50 border rounded-xl space-y-2 text-xs" id="order-card-${o.firestoreId}">
+                            <div class="flex justify-between items-center border-b pb-2">
                                 <span class="font-bold text-slate-500 font-mono">رقم الطلب: ${o.orderId}</span>
                                 ${statusBadge}
                             </div>
-                            <p class="font-bold text-slate-800">${o.fullName}</p>
-                            <p class="text-slate-500"><i class="fa-solid fa-clock ml-1"></i> ${o.createdAt}</p>
+                            <p class="font-bold text-slate-800 text-sm">${o.fullName}</p>
+                            <p class="text-slate-500"><i class="fa-solid fa-clock ml-1"></i> تاريخ التقديم: ${o.createdAt}</p>
                             ${o.notes ? `<p class="text-indigo-900 bg-indigo-50 p-2 rounded-lg border border-indigo-100"><i class="fa-solid fa-clipboard-check ml-1"></i> ملاحظات: ${o.notes}</p>` : ''}
+                            
+                            <div class="pt-2 flex justify-end">
+                                <button onclick="cancelMyOrder('${o.firestoreId}')" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-1.5 rounded-lg border border-red-200 transition flex items-center gap-1 text-[11px]">
+                                    <i class="fa-solid fa-trash-can"></i> إلغاء الطلب لإعادة التقديم
+                                </button>
+                            </div>
                         </div>
                     `;
                 });
@@ -462,6 +484,19 @@
             } catch (err) {
                 console.error(err);
                 resultBox.innerHTML = `<p class="text-xs text-red-500 text-center py-3">حدث خطأ في الاتصال بقاعدة البيانات.</p>`;
+            }
+        }
+
+        async function cancelMyOrder(firestoreId) {
+            if (confirm('هل أنت متأكد من إلغاء هذا الطلب؟ ستحتاج إلى إعادة التقديم من جديد إذا رغبت بذلك.')) {
+                try {
+                    await window.deleteDoc(window.doc(window.db, "ftth_orders", firestoreId));
+                    showToast('تم إلغاء الطلب بنجاح. يمكنك الآن التقديم مجدداً.', 'success');
+                    document.getElementById('track-result').innerHTML = `<p class="text-xs text-slate-500 text-center py-3">تم إلغاء الطلب بنجاح.</p>`;
+                } catch (err) {
+                    console.error(err);
+                    showToast('فشل إلغاء الطلب، يحاول مرة أخرى.', 'error');
+                }
             }
         }
     </script>
