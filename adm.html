@@ -61,6 +61,9 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
+                    <button onclick="loadAdminOrders()" class="text-xs bg-indigo-800 hover:bg-indigo-700 px-3 py-2 rounded-lg border border-indigo-700 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-rotate"></i> <span class="hidden sm:inline">تحديث</span>
+                    </button>
                     <button onclick="openChangePasswordModal()" class="text-xs bg-indigo-800 hover:bg-indigo-700 px-3 py-2 rounded-lg border border-indigo-700 transition flex items-center gap-1.5">
                         <i class="fa-solid fa-key"></i> <span class="hidden sm:inline">تغيير كلمة السر</span>
                     </button>
@@ -100,11 +103,11 @@
                     <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </span>
-                    <input type="text" id="admin-search" oninput="renderAdminOrders()" placeholder="بحث بالاسم أو رقم الهاتف..." 
+                    <input type="text" id="admin-search" oninput="renderOrdersTable()" placeholder="بحث بالاسم أو رقم الهاتف..." 
                            class="w-full pr-10 pl-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
                 <div class="flex gap-2">
-                    <select id="admin-filter-status" onchange="renderAdminOrders()" class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 outline-none">
+                    <select id="admin-filter-status" onchange="renderOrdersTable()" class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 outline-none">
                         <option value="جميع الحالات">جميع الحالات</option>
                         <option value="جديد">جديد</option>
                         <option value="كشف فني">كشف فني</option>
@@ -166,10 +169,36 @@
         </div>
     </div>
 
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.db = db;
+        window.collection = collection;
+        window.getDocs = getDocs;
+        window.doc = doc;
+        window.updateDoc = updateDoc;
+        window.deleteDoc = deleteDoc;
+    </script>
+
     <!-- Application Script -->
     <script>
         const DEFAULT_USER = 'war';
         const DEFAULT_PASS = '1995';
+        let allOrdersCache = [];
 
         document.addEventListener('DOMContentLoaded', () => {
             checkAuth();
@@ -181,7 +210,7 @@
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('admin-main').classList.remove('hidden');
                 document.getElementById('admin-main').classList.add('flex');
-                renderAdminOrders();
+                loadAdminOrders();
             } else {
                 document.getElementById('login-screen').classList.remove('hidden');
                 document.getElementById('admin-main').classList.add('hidden');
@@ -243,22 +272,42 @@
             closeChangePasswordModal();
         }
 
-        function renderAdminOrders() {
-            const orders = JSON.parse(localStorage.getItem('ftth_orders_data') || '[]');
+        async function loadAdminOrders() {
+            const tbody = document.getElementById('admin-orders-table');
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400">جاري تحميل الطلبات من السحابة...</td></tr>`;
+
+            try {
+                const querySnapshot = await window.getDocs(window.collection(window.db, "ftth_orders"));
+                allOrdersCache = [];
+                querySnapshot.forEach((docSnap) => {
+                    allOrdersCache.push({ firestoreId: docSnap.id, ...docSnap.data() });
+                });
+
+                // Sort newest first
+                allOrdersCache.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+                renderOrdersTable();
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-red-500">فشل تحميل الطلبات. تحقق من إعدادات الاتصال.</td></tr>`;
+            }
+        }
+
+        function renderOrdersTable() {
             const search = document.getElementById('admin-search').value.trim().toLowerCase();
             const filterStatus = document.getElementById('admin-filter-status').value;
 
-            let filtered = orders.filter(o => {
-                const matchSearch = o.fullName.toLowerCase().includes(search) || o.phone.includes(search) || o.id.toLowerCase().includes(search);
+            let filtered = allOrdersCache.filter(o => {
+                const matchSearch = o.fullName.toLowerCase().includes(search) || o.phone.includes(search) || o.orderId.toLowerCase().includes(search);
                 const matchStatus = (filterStatus === 'جميع الحالات') || (o.status === filterStatus);
                 return matchSearch && matchStatus;
             });
 
             // Update Stats
-            document.getElementById('stat-total').innerText = orders.length;
-            document.getElementById('stat-pending').innerText = orders.filter(o => o.status === 'جديد' || o.status === 'كشف فني').length;
-            document.getElementById('stat-process').innerText = orders.filter(o => o.status === 'جاري التوصيل').length;
-            document.getElementById('stat-completed').innerText = orders.filter(o => o.status === 'مكتمل').length;
+            document.getElementById('stat-total').innerText = allOrdersCache.length;
+            document.getElementById('stat-pending').innerText = allOrdersCache.filter(o => o.status === 'جديد' || o.status === 'كشف فني').length;
+            document.getElementById('stat-process').innerText = allOrdersCache.filter(o => o.status === 'جاري التوصيل').length;
+            document.getElementById('stat-completed').innerText = allOrdersCache.filter(o => o.status === 'مكتمل').length;
 
             const tbody = document.getElementById('admin-orders-table');
             if (filtered.length === 0) {
@@ -270,7 +319,7 @@
             filtered.forEach(o => {
                 html += `
                     <tr class="hover:bg-slate-50 transition">
-                        <td class="p-4 font-mono font-bold text-xs text-indigo-900">${o.id}</td>
+                        <td class="p-4 font-mono font-bold text-xs text-indigo-900">${o.orderId}</td>
                         <td class="p-4">
                             <div class="font-bold text-slate-800">${o.fullName}</div>
                             <div class="text-xs text-slate-500 font-mono">${o.phone}</div>
@@ -285,7 +334,7 @@
                             ${o.poleImage ? `<a href="${o.poleImage}" target="_blank"><img src="${o.poleImage}" class="w-10 h-10 object-cover rounded-lg border shadow-sm"></a>` : '<span class="text-xs text-slate-400">لا يوجد</span>'}
                         </td>
                         <td class="p-4">
-                            <select onchange="updateOrderStatus('${o.id}', this.value)" class="text-xs font-bold rounded-lg px-2 py-1.5 border outline-none">
+                            <select onchange="updateOrderStatus('${o.firestoreId}', this.value)" class="text-xs font-bold rounded-lg px-2 py-1.5 border outline-none">
                                 <option value="جديد" ${o.status === 'جديد' ? 'selected' : ''}>جديد</option>
                                 <option value="كشف فني" ${o.status === 'كشف فني' ? 'selected' : ''}>كشف فني</option>
                                 <option value="جاري التوصيل" ${o.status === 'جاري التوصيل' ? 'selected' : ''}>جاري التوصيل</option>
@@ -293,7 +342,7 @@
                             </select>
                         </td>
                         <td class="p-4">
-                            <input type="text" value="${o.notes || ''}" placeholder="أضف ملاحظة..." onchange="updateOrderNotes('${o.id}', this.value)"
+                            <input type="text" value="${o.notes || ''}" placeholder="أضف ملاحظة..." onchange="updateOrderNotes('${o.firestoreId}', this.value)"
                                    class="text-xs bg-slate-50 border rounded-lg px-2 py-1 w-full focus:bg-white focus:ring-1 focus:ring-indigo-500">
                         </td>
                         <td class="p-4">
@@ -301,7 +350,7 @@
                                 <a href="https://wa.me/${o.phone.replace(/^0/, '964')}" target="_blank" class="text-emerald-600 hover:text-emerald-800 text-base" title="واتساب">
                                     <i class="fa-brands fa-whatsapp"></i>
                                 </a>
-                                <button onclick="deleteOrder('${o.id}')" class="text-red-500 hover:text-red-700 text-base" title="حذف">
+                                <button onclick="deleteOrder('${o.firestoreId}')" class="text-red-500 hover:text-red-700 text-base" title="حذف">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </div>
@@ -313,31 +362,40 @@
             tbody.innerHTML = html;
         }
 
-        function updateOrderStatus(id, newStatus) {
-            let orders = JSON.parse(localStorage.getItem('ftth_orders_data') || '[]');
-            const idx = orders.findIndex(o => o.id === id);
-            if (idx !== -1) {
-                orders[idx].status = newStatus;
-                localStorage.setItem('ftth_orders_data', JSON.stringify(orders));
-                renderAdminOrders();
+        async function updateOrderStatus(firestoreId, newStatus) {
+            try {
+                const docRef = window.doc(window.db, "ftth_orders", firestoreId);
+                await window.updateDoc(docRef, { status: newStatus });
+                const order = allOrdersCache.find(o => o.firestoreId === firestoreId);
+                if(order) order.status = newStatus;
+                renderOrdersTable();
+            } catch (err) {
+                console.error(err);
+                alert('فشل تحديث الحالة في السحابة.');
             }
         }
 
-        function updateOrderNotes(id, noteText) {
-            let orders = JSON.parse(localStorage.getItem('ftth_orders_data') || '[]');
-            const idx = orders.findIndex(o => o.id === id);
-            if (idx !== -1) {
-                orders[idx].notes = noteText;
-                localStorage.setItem('ftth_orders_data', JSON.stringify(orders));
+        async function updateOrderNotes(firestoreId, noteText) {
+            try {
+                const docRef = window.doc(window.db, "ftth_orders", firestoreId);
+                await window.updateDoc(docRef, { notes: noteText });
+                const order = allOrdersCache.find(o => o.firestoreId === firestoreId);
+                if(order) order.notes = noteText;
+            } catch (err) {
+                console.error(err);
+                alert('فشل حفظ الملاحظة.');
             }
         }
 
-        function deleteOrder(id) {
-            if (confirm('هل أنت تأكد من حذف هذا الطلب نهائياً؟')) {
-                let orders = JSON.parse(localStorage.getItem('ftth_orders_data') || '[]');
-                orders = orders.filter(o => o.id !== id);
-                localStorage.setItem('ftth_orders_data', JSON.stringify(orders));
-                renderAdminOrders();
+        async function deleteOrder(firestoreId) {
+            if (confirm('هل أنت متأكد من حذف هذا الطلب نهائياً من السحابة؟')) {
+                try {
+                    await window.deleteDoc(window.doc(window.db, "ftth_orders", firestoreId));
+                    loadAdminOrders();
+                } catch (err) {
+                    console.error(err);
+                    alert('فشل الحذف.');
+                }
             }
         }
     </script>
