@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة إدارة طلبات FTTH</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; background-color: #f1f5f9; }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-md space-y-6">
+            <div class="text-center space-y-2">
+                <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-indigo-200">
+                    <i class="fa-solid fa-user-shield text-3xl text-white"></i>
+                </div>
+                <h2 class="text-2xl font-extrabold text-slate-800">لوحة الإدارة والتحكم</h2>
+                <p class="text-xs text-slate-500">منظومة إدارة طلبات الإنترنت الضوئي FTTH</p>
+            </div>
+
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم المستخدم</label>
+                    <input type="text" id="login-username" required placeholder="اسم المستخدم" 
+                           class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">كلمة المرور</label>
+                    <input type="password" id="login-password" required placeholder="••••••••" 
+                           class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                </div>
+                <div id="login-error" class="hidden text-xs text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-100 font-semibold text-center"></div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-100 transition">
+                    تسجيل الدخول
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN ADMIN INTERFACE -->
+    <div id="admin-main" class="hidden flex-col min-h-screen">
+        <!-- Header -->
+        <header class="bg-indigo-950 text-white shadow-md">
+            <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="bg-indigo-600 p-2 rounded-lg">
+                        <i class="fa-solid fa-users-gear text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-base md:text-lg">إدارة طلبات FTTH</h1>
+                        <p class="text-xs text-indigo-300">لوحة المتابعة والكشف الفني</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="openChangePasswordModal()" class="text-xs bg-indigo-800 hover:bg-indigo-700 px-3 py-2 rounded-lg border border-indigo-700 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-key"></i> <span class="hidden sm:inline">تغيير كلمة السر</span>
+                    </button>
+                    <button onclick="handleLogout()" class="text-xs bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg text-white font-bold transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-right-from-bracket"></i> <span class="hidden sm:inline">خروج</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Container -->
+        <main class="max-w-7xl mx-auto px-4 py-6 w-full flex-grow space-y-6">
+            
+            <!-- Statistics Bar -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-xs font-bold text-slate-500">إجمالي الطلبات</p>
+                    <p id="stat-total" class="text-2xl font-extrabold text-indigo-900 mt-1">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-xs font-bold text-amber-600">جديد / الكشف الفني</p>
+                    <p id="stat-pending" class="text-2xl font-extrabold text-amber-600 mt-1">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-xs font-bold text-purple-600">جاري التوصيل</p>
+                    <p id="stat-process" class="text-2xl font-extrabold text-purple-600 mt-1">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-xs font-bold text-emerald-600">المكتملة</p>
+                    <p id="stat-completed" class="text-2xl font-extrabold text-emerald-600 mt-1">0</p>
+                </div>
+            </div>
+
+            <!-- Controls & Filters -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between gap-4">
+                <div class="flex-1 relative">
+                    <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" id="admin-search" oninput="renderAdminOrders()" placeholder="بحث بالاسم أو رقم الهاتف..." 
+                           class="w-full pr-10 pl-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="flex gap-2">
+                    <select id="admin-filter-status" onchange="renderAdminOrders()" class="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 outline-none">
+                        <option value="جميع الحالات">جميع الحالات</option>
+                        <option value="جديد">جديد</option>
+                        <option value="كشف فني">كشف فني</option>
+                        <option value="جاري التوصيل">جاري التوصيل</option>
+                        <option value="مكتمل">مكتمل</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Orders Table Container -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-100 border-b border-slate-200 text-slate-600 text-xs font-bold">
+                                <th class="p-4">رقم الطلب</th>
+                                <th class="p-4">المشترك</th>
+                                <th class="p-4">العنوان</th>
+                                <th class="p-4">الموقع الجغرافي</th>
+                                <th class="p-4">صورة العمود</th>
+                                <th class="p-4">الحالة</th>
+                                <th class="p-4">ملاحظات الفني</th>
+                                <th class="p-4">إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-orders-table" class="divide-y divide-slate-100">
+                            <!-- Orders dynamic insertion -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- CHANGE PASSWORD MODAL -->
+    <div id="password-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm space-y-4">
+            <h3 class="font-bold text-lg text-slate-800 border-b pb-2">تغيير كلمة السر</h3>
+            <form onsubmit="handleChangePassword(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">كلمة السر الحالية</label>
+                    <input type="password" id="curr-pass" required class="w-full px-3 py-2 bg-slate-50 border rounded-lg text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">كلمة السر الجديدة</label>
+                    <input type="password" id="new-pass" required class="w-full px-3 py-2 bg-slate-50 border rounded-lg text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">تأكيد كلمة السر الجديدة</label>
+                    <input type="password" id="confirm-pass" required class="w-full px-3 py-2 bg-slate-50 border rounded-lg text-sm">
+                </div>
+                <div id="pass-msg" class="hidden text-xs text-red-600 font-bold"></div>
+                <div class="flex gap-2 pt-2">
+                    <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg text-xs">حفظ</button>
+                    <button type="button" onclick="closeChangePasswordModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-2 rounded-lg text-xs">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        const DEFAULT_USER = 'war';
+        const DEFAULT_PASS = '1995';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+        });
+
+        function checkAuth() {
+            const isLogged = sessionStorage.getItem('ftth_admin_logged');
+            if (isLogged === 'true') {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('admin-main').classList.remove('hidden');
+                document.getElementById('admin-main').classList.add('flex');
+                renderAdminOrders();
+            } else {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('admin-main').classList.add('hidden');
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('login-username').value.trim();
+            const p = document.getElementById('login-password').value.trim();
+
+            const savedPass = localStorage.getItem('ftth_admin_pass') || DEFAULT_PASS;
+
+            if (u === DEFAULT_USER && p === savedPass) {
+                sessionStorage.setItem('ftth_admin_logged', 'true');
+                checkAuth();
+            } else {
+                const err = document.getElementById('login-error');
+                err.innerText = 'اسم المستخدم أو كلمة المرور غير صحيحة';
+                err.classList.remove('hidden');
+            }
+        }
+
+        function handleLogout() {
+            sessionStorage.removeItem('ftth_admin_logged');
+            checkAuth();
+        }
+
+        function openChangePasswordModal() {
+            document.getElementById('password-modal').classList.remove('hidden');
+        }
+
+        function closeChangePasswordModal() {
+            document.getElementById('password-modal').classList.add('hidden');
+        }
+
+        function handleChangePassword(e) {
+            e.preventDefault();
+            const curr = document.getElementById('curr-pass').value.trim();
+            const newP = document.getElementById('new-pass').value.trim();
+            const conf = document.getElementById('confirm-pass').value.trim();
+            const msg = document.getElementById('pass-msg');
+
+            const savedPass = localStorage.getItem('ftth_admin_pass') || DEFAULT_PASS;
+
+            if (curr !== savedPass) {
+                msg.innerText = 'كلمة السر الحالية غير صحيحة';
+                msg.classList.remove('hidden');
+                return;
+            }
+            if (newP !== conf) {
+                msg.innerText = 'كلمة السر الجديدة غير مطابقة';
+                msg.classList.remove('hidden');
+                return;
+            }
+
+            localStorage.setItem('ftth_admin_pass', newP);
+            alert('تم تغيير كلمة السر بنجاح!');
+            closeChangePasswordModal();
+        }
+
+        function renderAdminOrders() {
+            const orders = JSON.parse(localStorage.getItem('ftth_orders_data') || '[]');
+            const search = document.getElementById('admin-search').value.trim().toLowerCase();
+            const filterStatus = document.getElementById('admin-filter-status').value;
+
+            let filtered = orders.filter(o => {
+                const matchSearch = o.fullName.toLowerCase().includes(search) || o.phone.includes(search) || o.id.toLowerCase().includes(search);
+                const matchStatus = (filterStatus === 'جميع الحالات') || (o.status === filterStatus);
+                return matchSearch && matchStatus;
+            });
+
+            // Update Stats
+            document.getElementById('stat-total').innerText = orders.length;
+            document.getElementById('stat-pending').innerText = orders.filter(o => o.status === 'جديد' || o.status === 'كشف فني').length;
+            document.getElementById('stat-process').innerText = orders.filter(o => o.status === 'جاري التوصيل').length;
+            document.getElementById('stat-completed').innerText = orders.filter(o => o.status === 'مكتمل').length;
+
+            const tbody = document.getElementById('admin-orders-table');
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400">لا توجد طلبات مطابقة</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(o => {
+                html += `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-4 font-mono font-bold text-xs text-indigo-900">${o.id}</td>
+                        <td class="p-4">
+                            <div class="font-bold text-slate-800">${o.fullName}</div>
+                            <div class="text-xs text-slate-500 font-mono">${o.phone}</div>
+                        </td>
+                        <td class="p-4 text-xs text-slate-600 max-w-xs">${o.address}</td>
+                        <td class="p-4">
+                            <a href="https://maps.google.com/?q=${o.lat},${o.lng}" target="_blank" class="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-100">
+                                <i class="fa-solid fa-map-location-dot"></i> الخريطة
+                            </a>
+                        </td>
+                        <td class="p-4">
+                            ${o.poleImage ? `<a href="${o.poleImage}" target="_blank"><img src="${o.poleImage}" class="w-10 h-10 object-cover rounded-lg border shadow-sm"></a>` : '<span class="text-xs text-slate-400">لا يوجد</span>'}
+                        </td>
+                        <td class="p-4">
+                            <select onchange="updateOrderStatus('${o.id}', this.value)" class="text-xs font-bold rounded-lg px-2 py-1.5 border outline-none">
+                                <option value="جديد" ${o.status === 'جديد' ? 'selected' : ''}>جديد</option>
+                                <option value="كشف فني" ${o.status === 'كشف فني' ? 'selected' : ''}>كشف فني</option>
+                                <option value="جاري التوصيل" ${o.status === 'جاري التوصيل' ? 'selected' : ''}>جاري التوصيل</option>
+                                <option value="مكتمل" ${o.status === 'مكتمل' ? 'selected' : ''}>مكتمل</option>
+                            </select>
+                        </td>
+                        <td class="p-4">
+                            <input type="text" value="${o.notes || ''}" placeholder="أضف ملاحظة..." onchange="updateOrderNotes('${o.id}', this.value)"
+                                   class="text-xs bg-slate-50 border rounded-lg px-2 py-1 w-full focus:bg-white focus:ring-1 focus:ring-indigo-500">
+                        </td>
+                        <td class="p-4">
+                            <div class="flex items-center gap-2">
+                                <a href="https://wa.me/${o.phone.replace(/^0/, '964')}" target="_blank" class="text-emerald-600 hover:text-emerald-800 text-base" title="واتساب">
+                                    <i class="fa-brands fa-whatsapp"></i>
+                                </a>
+                                <button onclick="deleteOrder('${o.id}')" class="text-red-500 hover:text-red-700 text-base" title="حذف">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function updateOrderStatus(id, newStatus) {
+            let orders = JSON.parse(localStorage.getItem('ftth_orders_data') || '[]');
+            const idx = orders.findIndex(o => o.id === id);
+            if (idx !== -1) {
+                orders[idx].status = newStatus;
+                localStorage.setItem('ftth_orders_data', JSON.stringify(orders));
+                renderAdminOrders();
+            }
+        }
+
+        function updateOrderNotes(id, noteText) {
+            let orders = JSON.parse(localStorage.getItem('ftth_orders_data') || '[]');
+            const idx = orders.findIndex(o => o.id === id);
+            if (idx !== -1) {
+                orders[idx].notes = noteText;
+                localStorage.setItem('ftth_orders_data', JSON.stringify(orders));
+            }
+        }
+
+        function deleteOrder(id) {
+            if (confirm('هل أنت تأكد من حذف هذا الطلب نهائياً؟')) {
+                let orders = JSON.parse(localStorage.getItem('ftth_orders_data') || '[]');
+                orders = orders.filter(o => o.id !== id);
+                localStorage.setItem('ftth_orders_data', JSON.stringify(orders));
+                renderAdminOrders();
+            }
+        }
+    </script>
+</body>
+</html>
