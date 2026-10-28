@@ -15,7 +15,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; }
-        #map { height: 260px; width: 100%; border-radius: 0.75rem; z-index: 10; }
+        #map { height: 320px; width: 100%; border-radius: 0.75rem; z-index: 10; }
     </style>
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between">
@@ -36,12 +36,23 @@
     <!-- Main Container -->
     <main class="max-w-4xl mx-auto px-4 py-6 w-full flex-grow">
         
+        <!-- Internal Toast Notification Box -->
+        <div id="internal-alert" class="hidden mb-6 p-4 rounded-xl border text-xs sm:text-sm font-bold flex items-center justify-between shadow-sm transition-all">
+            <div class="flex items-center gap-2.5">
+                <i id="internal-alert-icon" class="text-lg"></i>
+                <span id="internal-alert-text"></span>
+            </div>
+            <button onclick="hideInternalAlert()" class="text-slate-400 hover:text-slate-700">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
         <!-- Tab Navigation -->
         <div class="flex bg-slate-200 p-1 rounded-xl mb-6 max-w-sm mx-auto shadow-inner">
-            <button onclick="switchTab('new-request')" id="tab-new" class="flex-1 py-2 rounded-lg font-bold text-xs sm:text-sm transition bg-white text-indigo-900 shadow">
+            <button type="button" onclick="switchTab('new-request')" id="tab-new" class="flex-1 py-2 rounded-lg font-bold text-xs sm:text-sm transition bg-white text-indigo-900 shadow">
                 <i class="fa-solid fa-paper-plane ml-1"></i> طلب جديد
             </button>
-            <button onclick="switchTab('track-request')" id="tab-track" class="flex-1 py-2 rounded-lg font-bold text-xs sm:text-sm transition text-slate-600 hover:text-indigo-900">
+            <button type="button" onclick="switchTab('track-request')" id="tab-track" class="flex-1 py-2 rounded-lg font-bold text-xs sm:text-sm transition text-slate-600 hover:text-indigo-900">
                 <i class="fa-solid fa-magnifying-glass ml-1"></i> تتبع طلبك
             </button>
         </div>
@@ -51,16 +62,16 @@
             
             <!-- Progress Stepper -->
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-                <div class="grid grid-cols-3 gap-2 text-center relative">
-                    <div class="space-y-1">
+                <div class="flex justify-between items-center text-center relative max-w-md mx-auto px-4">
+                    <div class="space-y-1 z-10">
                         <div class="w-8 h-8 mx-auto rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow">1</div>
                         <p class="text-[11px] font-bold text-indigo-900 whitespace-nowrap">التقديم</p>
                     </div>
-                    <div class="space-y-1">
+                    <div class="space-y-1 z-10">
                         <div class="w-8 h-8 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center font-bold text-xs">2</div>
                         <p class="text-[11px] font-semibold text-slate-400 whitespace-nowrap">الكشف الفني</p>
                     </div>
-                    <div class="space-y-1">
+                    <div class="space-y-1 z-10">
                         <div class="w-8 h-8 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center font-bold text-xs">3</div>
                         <p class="text-[11px] font-semibold text-slate-400 whitespace-nowrap">التوصيل والتفعيل</p>
                     </div>
@@ -108,18 +119,20 @@
                 <!-- Geolocation Section -->
                 <div class="space-y-2.5 pt-1">
                     <div class="flex justify-between items-center flex-wrap gap-2">
-                        <label class="block text-xs font-bold text-slate-700">موقع المنزل على الخريطة <span class="text-red-500">*</span></label>
+                        <label class="block text-xs font-bold text-slate-700">موقع المنزل عبر قمر صناعي <span class="text-red-500">*</span></label>
                         <button type="button" onclick="getLocation()" class="text-[11px] bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-2.5 py-1.5 rounded-lg border border-indigo-200 flex items-center gap-1 transition">
-                            <i class="fa-solid fa-crosshairs"></i> تحديد موقعي تلقائياً
+                            <i class="fa-solid fa-crosshairs"></i> تحديد موقعي بدقة
                         </button>
                     </div>
+
+                    <p class="text-[11px] text-slate-500">🛰️ الخريطة معروضة بصور الأقمار الصناعية. انقر على منزلك مباشرة أو اسحب العلامة لتحديد مكانك بدقة.</p>
 
                     <!-- Alert Box for Location Permission -->
                     <div id="location-alert" class="hidden p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs leading-relaxed space-y-1">
                         <div class="flex items-center gap-1.5 font-bold text-amber-800">
                             <i class="fa-solid fa-triangle-exclamation"></i> تعذر تحديد الموقع تلقائياً
                         </div>
-                        <p>يرجى السماح بصلاحية الموقع في المتصفح أو الضغط يدوياً على الخريطة.</p>
+                        <p>يرجى السماح بصلاحية الموقع أو الضغط يدوياً على منزلك في قمر صناعي.</p>
                     </div>
 
                     <!-- Map Container -->
@@ -171,7 +184,7 @@
                 <div class="flex gap-2">
                     <input type="tel" id="track-phone" placeholder="أدخل رقم الهاتف..." 
                            class="flex-1 px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none text-xs sm:text-sm">
-                    <button onclick="trackOrder()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs sm:text-sm transition whitespace-nowrap">
+                    <button type="button" onclick="trackOrder()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs sm:text-sm transition whitespace-nowrap">
                         بحث
                     </button>
                 </div>
@@ -222,20 +235,52 @@
             initMap();
         });
 
+        function showInternalAlert(message, type = 'success') {
+            const alertBox = document.getElementById('internal-alert');
+            const alertText = document.getElementById('internal-alert-text');
+            const alertIcon = document.getElementById('internal-alert-icon');
+
+            alertText.innerText = message;
+
+            if (type === 'success') {
+                alertBox.className = "mb-6 p-4 rounded-xl border bg-emerald-50 border-emerald-200 text-emerald-900 text-xs sm:text-sm font-bold flex items-center justify-between shadow-sm transition-all";
+                alertIcon.className = "fa-solid fa-circle-check text-emerald-600 text-lg";
+            } else if (type === 'error') {
+                alertBox.className = "mb-6 p-4 rounded-xl border bg-red-50 border-red-200 text-red-900 text-xs sm:text-sm font-bold flex items-center justify-between shadow-sm transition-all";
+                alertIcon.className = "fa-solid fa-circle-exclamation text-red-600 text-lg";
+            } else {
+                alertBox.className = "mb-6 p-4 rounded-xl border bg-indigo-50 border-indigo-200 text-indigo-900 text-xs sm:text-sm font-bold flex items-center justify-between shadow-sm transition-all";
+                alertIcon.className = "fa-solid fa-circle-info text-indigo-600 text-lg";
+            }
+
+            alertBox.style.display = 'flex';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function hideInternalAlert() {
+            document.getElementById('internal-alert').style.display = 'none';
+        }
+
         function switchTab(tab) {
             const newSec = document.getElementById('section-new-request');
             const trackSec = document.getElementById('section-track-request');
             const tabNew = document.getElementById('tab-new');
             const tabTrack = document.getElementById('tab-track');
 
+            hideInternalAlert();
+
             if (tab === 'new-request') {
-                newSec.classList.remove('hidden');
-                trackSec.classList.add('hidden');
+                newSec.style.display = 'block';
+                trackSec.style.display = 'none';
                 tabNew.className = "flex-1 py-2 rounded-lg font-bold text-xs sm:text-sm transition bg-white text-indigo-900 shadow";
                 tabTrack.className = "flex-1 py-2 rounded-lg font-bold text-xs sm:text-sm transition text-slate-600 hover:text-indigo-900";
+                
+                setTimeout(() => {
+                    if (map) map.invalidateSize();
+                }, 100);
             } else {
-                newSec.classList.add('hidden');
-                trackSec.classList.remove('hidden');
+                newSec.style.display = 'none';
+                trackSec.style.display = 'block';
                 tabTrack.className = "flex-1 py-2 rounded-lg font-bold text-xs sm:text-sm transition bg-white text-indigo-900 shadow";
                 tabNew.className = "flex-1 py-2 rounded-lg font-bold text-xs sm:text-sm transition text-slate-600 hover:text-indigo-900";
             }
@@ -245,13 +290,23 @@
             const defaultLat = 31.0456;
             const defaultLng = 46.2558;
 
-            map = L.map('map').setView([defaultLat, defaultLng], 12);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
+            map = L.map('map').setView([defaultLat, defaultLng], 15);
+
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+                maxZoom: 19
             }).addTo(map);
 
+            marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+
+            marker.on('dragend', function(e) {
+                const pos = marker.getLatLng();
+                updateMarkerCoords(pos.lat, pos.lng);
+            });
+
             map.on('click', function(e) {
-                updateMarker(e.latlng.lat, e.latlng.lng);
+                marker.setLatLng(e.latlng);
+                updateMarkerCoords(e.latlng.lat, e.latlng.lng);
             });
 
             getLocation();
@@ -265,36 +320,29 @@
                     (position) => {
                         const lat = position.coords.latitude;
                         const lng = position.coords.longitude;
-                        updateMarker(lat, lng);
-                        map.setView([lat, lng], 17);
-                        alertBox.classList.add('hidden');
+                        
+                        marker.setLatLng([lat, lng]);
+                        map.setView([lat, lng], 19);
+                        updateMarkerCoords(lat, lng);
+                        
+                        alertBox.style.display = 'none';
                     },
                     (error) => {
-                        alertBox.classList.remove('hidden');
+                        alertBox.style.display = 'block';
                     },
-                    { enableHighAccuracy: true, timeout: 10000 }
+                    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
                 );
             } else {
-                alertBox.classList.remove('hidden');
+                alertBox.style.display = 'block';
             }
         }
 
-        function updateMarker(lat, lng) {
+        function updateMarkerCoords(lat, lng) {
             selectedLat = lat.toFixed(6);
             selectedLng = lng.toFixed(6);
 
             document.getElementById('lat-val').innerText = selectedLat;
             document.getElementById('lng-val').innerText = selectedLng;
-
-            if (marker) {
-                marker.setLatLng([lat, lng]);
-            } else {
-                marker = L.marker([lat, lng], { draggable: true }).addTo(map);
-                marker.on('dragend', function(e) {
-                    const position = marker.getLatLng();
-                    updateMarker(position.lat, position.lng);
-                });
-            }
         }
 
         function previewImage(event) {
@@ -304,8 +352,8 @@
                 reader.onload = function(e) {
                     poleImageBase64 = e.target.result;
                     document.getElementById('image-preview').src = poleImageBase64;
-                    document.getElementById('upload-prompt').classList.add('hidden');
-                    document.getElementById('image-preview-container').classList.remove('hidden');
+                    document.getElementById('upload-prompt').style.display = 'none';
+                    document.getElementById('image-preview-container').style.display = 'inline-block';
                 }
                 reader.readAsDataURL(file);
             }
@@ -316,15 +364,15 @@
             poleImageBase64 = null;
             document.getElementById('poleImage').value = '';
             document.getElementById('image-preview').src = '';
-            document.getElementById('upload-prompt').classList.remove('hidden');
-            document.getElementById('image-preview-container').classList.add('hidden');
+            document.getElementById('upload-prompt').style.display = 'block';
+            document.getElementById('image-preview-container').style.display = 'none';
         }
 
         async function handleFormSubmit(event) {
             event.preventDefault();
             
             if (!selectedLat || !selectedLng) {
-                alert('يرجى تحديد موقع المنزل على الخريطة أولاً.');
+                showInternalAlert('يرجى تحديد موقع المنزل على الخريطة أولاً.', 'error');
                 return;
             }
 
@@ -349,12 +397,12 @@
 
                 await window.addDoc(window.collection(window.db, "ftth_orders"), order);
 
-                alert(`تم إرسال طلبك بنجاح!\nرقم الطلب الخاص بك: ${order.orderId}`);
+                showInternalAlert(`تم إرسال طلبك بنجاح! رقم الطلب الخاص بك: ${order.orderId}`, 'success');
                 document.getElementById('ftth-form').reset();
                 removeImage(event);
             } catch (error) {
                 console.error(error);
-                alert('حدث خطأ أثناء الإرسال، يرجى المحاولة مرة أخرى.');
+                showInternalAlert('حدث خطأ أثناء الإرسال، يرجى المحاولة مرة أخرى.', 'error');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> إرسال طلب الاشتراك الآن`;
@@ -364,7 +412,7 @@
         async function trackOrder() {
             const queryVal = document.getElementById('track-phone').value.trim();
             const resultBox = document.getElementById('track-result');
-            resultBox.classList.remove('hidden');
+            resultBox.style.display = 'block';
 
             if (!queryVal) {
                 resultBox.innerHTML = `<p class="text-xs text-red-500">يرجى إدخال رقم الهاتف أولاً.</p>`;
