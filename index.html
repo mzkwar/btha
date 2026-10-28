@@ -20,31 +20,29 @@
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between">
 
-    <!-- Header -->
-    <header class="bg-indigo-900 text-white shadow-lg sticky top-0 z-50">
-        <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="bg-indigo-600 p-2.5 rounded-xl shadow">
-                    <i class="fa-solid font-bold fa-network-wired text-xl text-white"></i>
+    <!-- Professional Header -->
+    <header class="bg-gradient-to-r from-indigo-900 to-slate-900 text-white shadow-md sticky top-0 z-50 border-b border-indigo-800">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2.5">
+                <div class="bg-indigo-600 p-2 rounded-lg shadow-inner">
+                    <i class="fa-solid fa-network-wired text-base text-white"></i>
                 </div>
-                <div>
-                    <h1 class="font-bold text-lg md:text-xl leading-tight">خدمة الإنترنت الضوئي (FTTH)</h1>
-                    <p class="text-xs text-indigo-200">بوابة تقديم الطلبات والاستعلام</p>
-                </div>
+                <h1 class="font-extrabold text-sm sm:text-base tracking-wide whitespace-nowrap">طلب خدمة الإنترنت الضوئي FTTH</h1>
             </div>
+            <div class="text-xs text-indigo-300 font-semibold hidden sm:block whitespace-nowrap">بوابة المشتركين</div>
         </div>
     </header>
 
     <!-- Main Container -->
-    <main class="max-w-4xl mx-auto px-4 py-8 w-full flex-grow">
+    <main class="max-w-4xl mx-auto px-4 py-6 w-full flex-grow">
         
         <!-- Tab Navigation -->
-        <div class="flex bg-slate-200 p-1 rounded-xl mb-6 max-w-md mx-auto shadow-inner">
-            <button onclick="switchTab('new-request')" id="tab-new" class="flex-1 py-2.5 rounded-lg font-bold text-sm transition-all duration-200 bg-white text-indigo-900 shadow">
-                <i class="fa-solid fa-paper-plane ml-1.5"></i> طلب جديد
+        <div class="flex bg-slate-200 p-1 rounded-xl mb-6 max-w-sm mx-auto shadow-inner">
+            <button onclick="switchTab('new-request')" id="tab-new" class="flex-1 py-2 rounded-lg font-bold text-xs sm:text-sm transition bg-white text-indigo-900 shadow">
+                <i class="fa-solid fa-paper-plane ml-1"></i> طلب جديد
             </button>
-            <button onclick="switchTab('track-request')" id="tab-track" class="flex-1 py-2.5 rounded-lg font-bold text-sm transition-all duration-200 text-slate-600 hover:text-indigo-900">
-                <i class="fa-solid fa-magnifying-glass ml-1.5"></i> تتبع طلبك
+            <button onclick="switchTab('track-request')" id="tab-track" class="flex-1 py-2 rounded-lg font-bold text-xs sm:text-sm transition text-slate-600 hover:text-indigo-900">
+                <i class="fa-solid fa-magnifying-glass ml-1"></i> تتبع طلبك
             </button>
         </div>
 
@@ -52,402 +50,27 @@
         <div id="section-new-request" class="space-y-6">
             
             <!-- Progress Stepper -->
-            <div class="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-100">
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                 <div class="grid grid-cols-3 gap-2 text-center relative">
-                    <div class="space-y-2">
-                        <div class="w-10 h-10 mx-auto rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold shadow-md shadow-indigo-100">1</div>
-                        <p class="text-xs font-bold text-indigo-900">تقديم الطلب</p>
+                    <div class="space-y-1">
+                        <div class="w-8 h-8 mx-auto rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow">1</div>
+                        <p class="text-[11px] font-bold text-indigo-900 whitespace-nowrap">التقديم</p>
                     </div>
-                    <div class="space-y-2">
-                        <div class="w-10 h-10 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center font-bold">2</div>
-                        <p class="text-xs font-semibold text-slate-400">الكشف الفني</p>
+                    <div class="space-y-1">
+                        <div class="w-8 h-8 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center font-bold text-xs">2</div>
+                        <p class="text-[11px] font-semibold text-slate-400 whitespace-nowrap">الكشف الفني</p>
                     </div>
-                    <div class="space-y-2">
-                        <div class="w-10 h-10 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center font-bold">3</div>
-                        <p class="text-xs font-semibold text-slate-400">التوصيل والتفعيل</p>
+                    <div class="space-y-1">
+                        <div class="w-8 h-8 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center font-bold text-xs">3</div>
+                        <p class="text-[11px] font-semibold text-slate-400 whitespace-nowrap">التوصيل والتفعيل</p>
                     </div>
                 </div>
             </div>
 
-            <form id="ftth-form" onsubmit="handleFormSubmit(event)" class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 space-y-6">
+            <form id="ftth-form" onsubmit="handleFormSubmit(event)" class="bg-white p-5 sm:p-7 rounded-2xl shadow-sm border border-slate-100 space-y-5">
                 
-                <h2 class="text-lg font-bold text-slate-800 border-b pb-3 border-slate-100 flex items-center gap-2">
-                    <i class="fa-solid fa-user-gear text-indigo-600"></i> البيانات الأساسية للمشترك
+                <h2 class="text-sm font-bold text-slate-800 border-b pb-2.5 border-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-user-gear text-indigo-600"></i> بيانات المشترك الأساسية
                 </h2>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Full Name -->
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">الاسم الثلاثي <span class="text-red-500">*</span></label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
-                                <i class="fa-solid fa-user"></i>
-                            </span>
-                            <input type="text" id="fullName" required placeholder="مثال: مهدي ظافر كمر" 
-                                   class="w-full pr-10 pl-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition text-sm">
-                        </div>
-                    </div>
-
-                    <!-- Phone Number -->
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">رقم الهاتف <span class="text-red-500">*</span></label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
-                                <i class="fa-solid fa-phone"></i>
-                            </span>
-                            <input type="tel" id="phone" required placeholder="07XXXXXXXXX" pattern="^07[3-9][0-9]{8}$"
-                                   class="w-full pr-10 pl-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition text-sm" dir="ltr">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Address -->
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">العنوان الكامل التفصيلي <span class="text-red-500">*</span></label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
-                            <i class="fa-solid fa-location-dot"></i>
-                        </span>
-                        <input type="text" id="address" required placeholder="المحافظة / قضاء / الحي / رقم الزقاق أو أقرب نقطة دالة" 
-                               class="w-full pr-10 pl-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition text-sm">
-                    </div>
-                </div>
-
-                <!-- Geolocation Section -->
-                <div class="space-y-3 pt-2">
-                    <div class="flex justify-between items-center flex-wrap gap-2">
-                        <label class="block text-sm font-bold text-slate-700">موقع المنزل على الخريطة <span class="text-red-500">*</span></label>
-                        <button type="button" onclick="getLocation()" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-3 py-1.5 rounded-lg border border-indigo-200 flex items-center gap-1.5 transition">
-                            <i class="fa-solid fa-crosshairs"></i> تحديد موقعي الحالي تلقائياً
-                        </button>
-                    </div>
-
-                    <!-- Alert Box for Location Permission -->
-                    <div id="location-alert" class="hidden p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs leading-relaxed space-y-2">
-                        <div class="flex items-center gap-2 font-bold text-amber-800 text-sm">
-                            <i class="fa-solid fa-triangle-exclamation text-base"></i> تعذر الوصول التلقائي للموقع
-                        </div>
-                        <p>يرجى السماح للموقع الجغرافي (Location Permission) في متصفحك أو الضغط على الخريطة لتحديد منزلكم دقيقاً.</p>
-                    </div>
-
-                    <!-- Map Container -->
-                    <div id="map" class="shadow-inner border border-slate-200"></div>
-
-                    <!-- Coordinates Display -->
-                    <div class="grid grid-cols-2 gap-3 text-xs bg-slate-100 p-3 rounded-xl border border-slate-200 font-mono text-slate-600">
-                        <div>خط العرض (Lat): <span id="lat-val" class="font-bold text-indigo-700">لم يحدد</span></div>
-                        <div>خط الطول (Lng): <span id="lng-val" class="font-bold text-indigo-700">لم يحدد</span></div>
-                    </div>
-                </div>
-
-                <!-- Optional File Upload: Pole / Box Picture -->
-                <div class="pt-2">
-                    <label class="block text-sm font-bold text-slate-700 mb-2">
-                        إرفاق صورة رقم العمود أو الكابينة القريبة <span class="text-xs font-normal text-slate-400">(اختياري)</span>
-                    </label>
-                    <div class="border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-xl p-4 text-center bg-slate-50 hover:bg-slate-100 transition cursor-pointer relative" id="drop-zone">
-                        <input type="file" id="poleImage" accept="image/*" onchange="previewImage(event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                        <div id="upload-prompt" class="space-y-1">
-                            <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400"></i>
-                            <p class="text-xs font-bold text-slate-600">اضغط هنا أو اسحب الصورة لإرفاقها</p>
-                            <p class="text-xs text-slate-400">تساعد الفنيين في سرعة التوصيل والكشف</p>
-                        </div>
-                        <!-- Preview Container -->
-                        <div id="image-preview-container" class="hidden relative inline-block">
-                            <img id="image-preview" src="" alt="Preview" class="max-h-40 rounded-lg shadow-md border">
-                            <button type="button" onclick="removeImage(event)" class="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow hover:bg-red-700">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Submit Buttons -->
-                <div class="pt-4 flex flex-col sm:flex-row gap-3">
-                    <button type="submit" id="submit-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-indigo-100 transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-paper-plane"></i> إرسال طلب الاشتراك
-                    </button>
-                    <button type="button" onclick="submitViaWhatsApp()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-emerald-100 transition flex items-center justify-center gap-2">
-                        <i class="fa-brands fa-whatsapp text-lg"></i> إرسال عبر واتساب
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Section: Track Request -->
-        <div id="section-track-request" class="hidden space-y-6">
-            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 space-y-6">
-                <h2 class="text-lg font-bold text-slate-800 border-b pb-3 border-slate-100 flex items-center gap-2">
-                    <i class="fa-solid fa-magnifying-glass text-indigo-600"></i> الاستعلام عن حالة الطلب
-                </h2>
-
-                <div class="flex gap-2">
-                    <input type="tel" id="track-phone" placeholder="أدخل رقم الهاتف المسجل بالطلب" 
-                           class="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition text-sm">
-                    <button onclick="trackOrder()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3 rounded-xl transition">
-                        بحث
-                    </button>
-                </div>
-
-                <div id="track-result" class="hidden space-y-4 pt-4 border-t border-slate-100"></div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
-        <p>© 2026 جميع الحقوق محفوظة - شبكة الإنترنت الضوئي FTTH</p>
-    </footer>
-
-    <!-- Firebase SDKs & Config -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyALzT1ABZJjTxXraUJfNAO3YAdo_UD2rfQ",
-            authDomain: "ftth-4b143.firebaseapp.com",
-            projectId: "ftth-4b143",
-            storageBucket: "ftth-4b143.firebasestorage.app",
-            messagingSenderId: "907865289895",
-            appId: "1:907865289895:web:e0c6f40b90dac9d16e1782",
-            measurementId: "G-JKHYSSYFWL"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        window.db = db;
-        window.collection = collection;
-        window.addDoc = addDoc;
-        window.getDocs = getDocs;
-    </script>
-
-    <!-- Application Script -->
-    <script>
-        let map, marker;
-        let selectedLat = null;
-        let selectedLng = null;
-        let poleImageBase64 = null;
-
-        document.addEventListener('DOMContentLoaded', () => {
-            initMap();
-        });
-
-        function switchTab(tab) {
-            const newSec = document.getElementById('section-new-request');
-            const trackSec = document.getElementById('section-track-request');
-            const tabNew = document.getElementById('tab-new');
-            const tabTrack = document.getElementById('tab-track');
-
-            if (tab === 'new-request') {
-                newSec.classList.remove('hidden');
-                trackSec.classList.add('hidden');
-                tabNew.className = "flex-1 py-2.5 rounded-lg font-bold text-sm transition-all duration-200 bg-white text-indigo-900 shadow";
-                tabTrack.className = "flex-1 py-2.5 rounded-lg font-bold text-sm transition-all duration-200 text-slate-600 hover:text-indigo-900";
-            } else {
-                newSec.classList.add('hidden');
-                trackSec.classList.remove('hidden');
-                tabTrack.className = "flex-1 py-2.5 rounded-lg font-bold text-sm transition-all duration-200 bg-white text-indigo-900 shadow";
-                tabNew.className = "flex-1 py-2.5 rounded-lg font-bold text-sm transition-all duration-200 text-slate-600 hover:text-indigo-900";
-            }
-        }
-
-        function initMap() {
-            const defaultLat = 31.0456;
-            const defaultLng = 46.2558;
-
-            map = L.map('map').setView([defaultLat, defaultLng], 12);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
-            }).addTo(map);
-
-            map.on('click', function(e) {
-                updateMarker(e.latlng.lat, e.latlng.lng);
-            });
-
-            getLocation();
-        }
-
-        function getLocation() {
-            const alertBox = document.getElementById('location-alert');
-            
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        updateMarker(lat, lng);
-                        map.setView([lat, lng], 17);
-                        alertBox.classList.add('hidden');
-                    },
-                    (error) => {
-                        alertBox.classList.remove('hidden');
-                    },
-                    { enableHighAccuracy: true, timeout: 10000 }
-                );
-            } else {
-                alertBox.classList.remove('hidden');
-            }
-        }
-
-        function updateMarker(lat, lng) {
-            selectedLat = lat.toFixed(6);
-            selectedLng = lng.toFixed(6);
-
-            document.getElementById('lat-val').innerText = selectedLat;
-            document.getElementById('lng-val').innerText = selectedLng;
-
-            if (marker) {
-                marker.setLatLng([lat, lng]);
-            } else {
-                marker = L.marker([lat, lng], { draggable: true }).addTo(map);
-                marker.on('dragend', function(e) {
-                    const position = marker.getLatLng();
-                    updateMarker(position.lat, position.lng);
-                });
-            }
-        }
-
-        function previewImage(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    poleImageBase64 = e.target.result;
-                    document.getElementById('image-preview').src = poleImageBase64;
-                    document.getElementById('upload-prompt').classList.add('hidden');
-                    document.getElementById('image-preview-container').classList.remove('hidden');
-                }
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function removeImage(event) {
-            event.stopPropagation();
-            poleImageBase64 = null;
-            document.getElementById('poleImage').value = '';
-            document.getElementById('image-preview').src = '';
-            document.getElementById('upload-prompt').classList.remove('hidden');
-            document.getElementById('image-preview-container').classList.add('hidden');
-        }
-
-        async function handleFormSubmit(event) {
-            event.preventDefault();
-            
-            if (!selectedLat || !selectedLng) {
-                alert('يرجى تحديد موقع المنزل على الخريطة أولاً.');
-                return;
-            }
-
-            const btn = document.getElementById('submit-btn');
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> جاري الإرسال...`;
-
-            try {
-                const order = {
-                    orderId: 'ORD-' + Math.floor(100000 + Math.random() * 900000),
-                    fullName: document.getElementById('fullName').value.trim(),
-                    phone: document.getElementById('phone').value.trim(),
-                    address: document.getElementById('address').value.trim(),
-                    lat: selectedLat,
-                    lng: selectedLng,
-                    poleImage: poleImageBase64 || '',
-                    status: 'جديد',
-                    createdAt: new Date().toLocaleDateString('ar-IQ', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
-                    timestamp: Date.now(),
-                    notes: ''
-                };
-
-                await window.addDoc(window.collection(window.db, "ftth_orders"), order);
-
-                alert(`تم إرسال طلبك بنجاح!\nرقم الطلب الخاص بك: ${order.orderId}`);
-                document.getElementById('ftth-form').reset();
-                removeImage(event);
-            } catch (error) {
-                console.error(error);
-                alert('حدث خطأ أثناء الإرسال، يرجى المحاولة مرة أخرى.');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> إرسال طلب الاشتراك`;
-            }
-        }
-
-        function submitViaWhatsApp() {
-            const fullName = document.getElementById('fullName').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const address = document.getElementById('address').value.trim();
-
-            if (!fullName || !phone || !address || !selectedLat) {
-                alert('يرجى ملء جميع الحقول الإلزامية وتحديد الموقع على الخريطة قبل الإرسال.');
-                return;
-            }
-
-            const msg = `*طلب اشتراك جديد - FTTH*%0A` +
-                        `*الاسم:* ${fullName}%0A` +
-                        `*الهاتف:* ${phone}%0A` +
-                        `*العنوان:* ${address}%0A` +
-                        `*الموقع:* https://maps.google.com/?q=${selectedLat},${selectedLng}`;
-
-            window.open(`https://wa.me/?text=${msg}`, '_blank');
-        }
-
-        async function trackOrder() {
-            const queryVal = document.getElementById('track-phone').value.trim();
-            const resultBox = document.getElementById('track-result');
-            resultBox.classList.remove('hidden');
-
-            if (!queryVal) {
-                resultBox.innerHTML = `<p class="text-xs text-red-500">يرجى إدخال رقم الهاتف أولاً.</p>`;
-                return;
-            }
-
-            resultBox.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">جاري البحث في قاعدة البيانات...</p>`;
-
-            try {
-                const querySnapshot = await window.getDocs(window.collection(window.db, "ftth_orders"));
-                let foundOrders = [];
-                
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    if (data.phone.includes(queryVal) || data.orderId.includes(queryVal)) {
-                        foundOrders.push(data);
-                    }
-                });
-
-                if (foundOrders.length === 0) {
-                    resultBox.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">لم يتم العثور على طلب مرتبط بـ (${queryVal})</p>`;
-                    return;
-                }
-
-                let html = '';
-                foundOrders.forEach(o => {
-                    let statusBadge = '';
-                    if(o.status === 'جديد') statusBadge = '<span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-full font-bold">جديد (قيد الانتظار)</span>';
-                    else if(o.status === 'كشف فني') statusBadge = '<span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full font-bold">جاري الكشف الفني</span>';
-                    else if(o.status === 'جاري التوصيل') statusBadge = '<span class="bg-purple-100 text-purple-800 text-xs px-2.5 py-1 rounded-full font-bold">جاري التوصيل</span>';
-                    else if(o.status === 'مكتمل') statusBadge = '<span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-bold">تم التفعيل والتوصيل بنجاح</span>';
-
-                    html += `
-                        <div class="p-4 bg-slate-50 border rounded-xl space-y-2">
-                            <div class="flex justify-between items-center border-b pb-2">
-                                <span class="font-bold text-xs text-slate-500">رقم الطلب: ${o.orderId}</span>
-                                ${statusBadge}
-                            </div>
-                            <p class="text-sm font-bold text-slate-800">${o.fullName}</p>
-                            <p class="text-xs text-slate-600"><i class="fa-solid fa-clock ml-1"></i> تاريخ التقديم: ${o.createdAt}</p>
-                            ${o.notes ? `<p class="text-xs text-indigo-900 bg-indigo-50 p-2 rounded-lg border border-indigo-100"><i class="fa-solid fa-clipboard-check ml-1"></i> ملاحظات الفريق: ${o.notes}</p>` : ''}
-                        </div>
-                    `;
-                });
-
-                resultBox.innerHTML = html;
-            } catch (err) {
-                console.error(err);
-                resultBox.innerHTML = `<p class="text-xs text-red-500 text-center py-4">حدث خطأ في الاتصال بقاعدة البيانات.</p>`;
-            }
-        }
-    </script>
-</body>
-</html>
+                <div class="grid grid-cols-1 md
